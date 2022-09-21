@@ -1,10 +1,10 @@
 # PLN-NER_with_Weak_Supervision
 
-## Universidade de Brasília
-## Departamento de CiÊncia da Computação
-## CIC0269 - Processamento de Linguagem Natural - 2022/1
-## Aluno: Vitor Vasconcelos de Oliveira - 180114778
-## Professor: Vinícius R. P. Borges
+Universidade de Brasília
+Departamento de CiÊncia da Computação
+CIC0269 - Processamento de Linguagem Natural - 2022/1
+Aluno: Vitor Vasconcelos de Oliveira - 180114778
+Professor: Vinícius R. P. Borges
 
 This is a repository containing codes and an article about named entity recognition experimentation using Weak Supervision and a Conditional Random Field model trained from Weak Supervision results
 
