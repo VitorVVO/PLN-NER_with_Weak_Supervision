@@ -1,10 +1,6 @@
 # PLN-NER_with_Weak_Supervision
 
-Universidade de Brasília 
-
-
-Departamento de CiÊncia da Computação 
-
+Universidade de Brasília ####Departamento de CiÊncia da Computação 
 
 CIC0269 - Processamento de Linguagem Natural - 2022/1
 
