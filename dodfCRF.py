@@ -187,7 +187,7 @@ class CRFContratos():
 
         return sent_features
 
-    def separate_cols(self, train_x, train_y):
+    def separate_cols(self, df):
         '''
         separa as colunas "text" e "labels" do dataframe de modo que possam ser utilizadas no treinamento do modelo
 
@@ -198,31 +198,9 @@ class CRFContratos():
             x: um gerador com as features extraidas do "text" do dataframe
             y: uma lista com as labels extraidas do "labels"(iob) do dataframe
         '''
-        x = (self._get_features(train_x[i].split())
-             for i in range(len(train_x)))
-        y = [train_y[i].split() for i in range(len(train_y))]
+        x = (self._get_features(df['text'][i].split())for i in range(len(df)))
+        y = [df['labels'][i].split() for i in range(len(df))]
         return x, y
-
-    def preprocess_spacy(self, txt):
-        '''
-        Aplica um processo de preprocessamento do Spacy 
-
-        parametros:
-            txt:um vetor com os textos "crus"
-
-        return:
-            vet_txt: um vetor com os textos preprocessados seguindo o tekenizador do Spacy
-        '''
-        nlp = spacy.load('pt_core_news_sm', disable=["ner", "lemmatizer"])
-        docs = list(nlp.pipe(txt))
-        vet_txt = []
-        for doc in docs:
-            aux = ""
-            for token in doc:
-                aux += token.text + ' '
-            vet_txt.append(aux)
-
-        return vet_txt
 
     def get_dataframe(self, dados):
         '''
@@ -239,9 +217,7 @@ class CRFContratos():
         skw.apply_label_functions()
         skw.train_HMM_Dodf()
 
-        df = skw.get_hmm_dataframe()
-
-        return df['text'], df['labes'], df
+        return skw.get_hmm_dataframe()
 
     def init_model_lbfgs(self):
         '''
@@ -277,17 +253,17 @@ class CRFContratos():
         '''
         self.model = joblib.load(str(path), 'r')
 
-    def train_model(self, train_x, train_y):
+    def train_model(self, df):
         '''
         treina o modelo crf a partir de um dataframe
 
         parametros:
             df: dataframe extraido da base de dados de contratos
         '''
-        txt, lbl = self.separate_cols(train_x, train_y)
+        txt, lbl = self.separate_cols(df)
         self.model.fit(txt, lbl)
 
-    def model_predict(self, txt):
+    def model_predict(self, vet_txt):
         '''
         realiza uma previsão de uma base de dados utilizando o modelo ja treinado
 
@@ -297,12 +273,20 @@ class CRFContratos():
         return:
             um vetor de previsoes em IOB, com uma previsao para cada contrato do parametro passado
         '''
+        nlp = spacy.load('pt_core_news_sm', disable=["ner", "lemmatizer"])
+        docs = list(nlp.pipe(vet_txt))
+        txt = []
+        for doc in docs:
+            aux = ""
+            for token in doc:
+                aux += token.text + ' '
+            txt.append(aux)
 
         x = (self._get_features(txt[i].split())for i in range(len(txt)))
 
         return self.model.predict(x)
 
-    def test_model(self, train_x, train_y):
+    def test_model(self, dados):
         '''
         realiza uma teste de acuracia do modelo ja treinado, a partir de uma base de dados utilizando 
         mostra o f1  score do modelo assim como o resultado de classificacao de cada entidade
@@ -311,7 +295,8 @@ class CRFContratos():
             dados: vetor de strings, cada uma representadno um contrato 
 
         '''
-        txt, lbl = self.separate_cols(train_x, train_y)
+        df = self.get_dataframe(dados)
+        txt, lbl = self.separate_cols(df)
         lbl_ans = self.model.predict(txt)
 
         labels = list(self.model.classes_)
